@@ -32,6 +32,12 @@ mechanism (done 2026-10-14, four zoom levels), builds the demo, and reviews the 
 for correctness and clarity. Why: the assignment says "in your own words", and the
 point of the course is understanding, which does not transfer by delegation.
 
+How the text was written, from 2026-10-14: Claude explains one topic in a few lines
+and asks one question. The student's answer becomes the section's text. Claude flags
+only factual errors, and adds the tables, numbers and commands, which are facts rather
+than wording. Three writing rounds: attention and the cache, the latent and
+absorption, position.
+
 **C. What the demo covers.** Chosen: C1, the content path only.
 - C1: the latent cache, the two code paths that give the same output (rebuild keys
   and values, or translate the query), and the cache and compute counts. One
@@ -41,20 +47,24 @@ point of the course is understanding, which does not transfer by delegation.
   extension if time allows. RoPE is explained in the text and counted in the cache
   numbers.
 
-**D. Language.** English, like the earlier homework repos.
+**D. Language.** The README is in Swedish. Changed on 2026-10-14 from English: own
+words come easiest in one's own language, and the assignment is written in Swedish.
+Code, comments, tests and this plan stay in English.
 
 ## The reader's path through the README
 
-1. The problem: generating text means looking back at every earlier token, and what
-   is stored per token (the KV cache) grows until memory, not compute, is the limit.
-2. The idea: store one small latent vector per token instead of every head's key and
-   value, and let each head read its own key and value out of it.
-3. The trick: the reading step is a matrix, so it can be moved onto the query. Keys
-   and values are never rebuilt.
-4. The catch: position (RoPE) does not commute with the trick, so a small separate
-   position key is stored next to the latent.
-5. Numbers from DeepSeek-V2, and what the demo prints.
-6. How to run the demo.
+The order is the student's, chosen on 2026-10-14. It explains attention before the
+problem, because the reader does not know what a key or a head is.
+
+0. Title and summary, written last.
+1. What the model does: tokens, one at a time, hidden states, W * h.
+2. Attention and the KV cache, with the example "Lisa ... Hon".
+3. MLA: why the cache is large, one shared latent per token, and absorption on the
+   key and the value side.
+4. Position: RoPE, why it does not survive absorption, and the decoupled key.
+5. What it gains and what it costs: the DeepSeek-V2 tables from the demo.
+6. Run the demo, with the toy example's output.
+7. Sources.
 
 ## The demo, `mla_demo.py`
 
