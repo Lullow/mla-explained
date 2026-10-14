@@ -1,0 +1,29 @@
+== Toy example: one head, four tokens, integer weights
+cards                    [[3, 1], [1, 1], [2, 2], [1, 2]]
+query                    [1, 2]
+scores, keys rebuilt     [6, 4, 8, 7]
+scores, query translated [6, 4, 8, 7]
+output, unpack           [1.835, 3.734]
+output, absorbed         [1.835, 3.734]
+same answer: yes
+
+== DeepSeek-V2 sizes, random weights: 128 heads of 128, cards of 512, hidden 5120, 32 cached tokens
+cache for this layer:           32 cards x 512 = 16,384 numbers
+keys and values the unpack path rebuilt from it: 1,048,576 numbers
+max difference between the two outputs: 5.96e-07
+same answer: yes
+
+== What is cached per token (60 layers, 2 bytes per number, 128k context)
+variant                                          per token, layer per token, all  whole context  vs MLA
+MHA, every head its own K and V                            32,768         3.9 MB       515.4 GB   56.9x
+GQA, 8 shared KV heads (Llama 3 70B)                        2,048       245.8 kB        32.2 GB    3.6x
+MQA, one K and V shared by all heads                          256        30.7 kB         4.0 GB    0.4x
+MLA, one card of 512 + RoPE key of 64                         576        69.1 kB         9.1 GB    1.0x
+
+== Multiply-adds one layer spends on attention per generated token
+ cached tokens              MHA      MLA, unpack    MLA, absorbed
+            32         1.05e+06         5.38e+08         2.10e+07
+         4,096         1.34e+08         6.89e+10         5.54e+08
+       131,072         4.29e+09         2.20e+12         1.72e+10
+The unpack path pays for rebuilding keys and values on every token. The absorbed path pays a fixed translation plus dot products that are 4x longer than MHA's. Memory, not multiply-adds, is the bottleneck when generating, so MLA trades bytes for arithmetic.
+
